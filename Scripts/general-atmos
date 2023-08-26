@@ -1,0 +1,79 @@
+alias SENSOR d0
+alias IN d1
+alias OUT d2
+alias HEATER d3
+alias COOLER d4
+alias MAXT r0
+alias MINT r1
+alias CURT r2
+alias CURP r3
+alias OXYGEN r4
+alias POLLUTANT r5
+alias CO2 r6
+alias VOLATILES r7
+alias WATER r8
+alias N2O r9
+
+move MAXT 22
+add MAXT MAXT 273
+move MINT 20
+add MINT MINT 273
+
+start:
+yield
+l CURT SENSOR Temperature
+bgt CURT MAXT cool
+blt CURT MINT heat
+j off
+
+cool:
+s COOLER On 1
+s HEATER On 0
+j checkP
+heat:
+s HEATER On 1
+s COOLER On 0
+j checkP
+off:
+s HEATER On 0
+s COOLER On 0
+j checkP
+
+checkP:
+#Lecture sensor
+l CURP SENSOR Pressure
+l OXYGEN SENSOR RatioOxygen
+l POLLUTANT SENSOR RatioPollutant
+l CO2 SENSOR RatioCarbonDioxide
+l VOLATILES SENSOR RatioVolatiles
+l WATER SENSOR RatioWater
+l N2O SENSOR RatioNitrousOxide
+#Check value ratio
+blt OXYGEN 0.200 inOn
+bgt OXYGEN 0.300 inOn
+bgt POLLUTANT 0 inOn
+bgt CO2 0.200 inOn
+bgt VOLATILES 0 inOn
+bgt WATER 0 inOn
+bgt N2O 0 inOn
+#Check value pressure
+bgt CURP 101 outOn
+ble CURP 101 outOff
+blt CURP 101 inOn
+j inOff
+
+inOn:
+s IN On 1
+j start
+
+inOff:
+s IN On 0
+j start
+
+outOn:
+s OUT On 1
+j start
+
+outOff:
+s OUT On 0
+j start
