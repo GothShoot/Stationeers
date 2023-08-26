@@ -1,0 +1,17 @@
+alias RES d0
+alias MIXER d1
+alias MAXP r0
+alias CURP r1
+move MAXP 40000
+start:
+yield
+l CURP RES Pressure
+bge CURP MAXP stop
+bgt MAXP CURP fill
+j start
+stop:
+s MIXER On 0
+j start
+fill:
+s MIXER On 1
+j start

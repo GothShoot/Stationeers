@@ -1,0 +1,17 @@
+alias VLV d0
+alias LED d1
+alias GAS r2
+
+start:
+yield
+l GAS db RatioOxygenInput
+bge GAS 0.4 filtr
+blt GAS 0.4 nofiltr
+filtr:
+s db Mode 1
+s VLV On 0
+j start
+nofiltr:
+s VLV On 1
+s db Mode 0
+j start

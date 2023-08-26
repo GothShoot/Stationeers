@@ -1,0 +1,121 @@
+alias MODEDIAL d0
+alias CONFIGDIAL d1
+alias MAXT r0
+alias MINT r1
+alias CURT r2
+alias CURP r3
+alias OXYGEN r4
+alias POLLUTANT r5
+alias CO2 r6
+alias VOLATILES r7
+alias WATER r8
+alias N2O r9
+alias RatioOxygen r10
+alias RatioNitrogen r11
+alias RatioCarbonDioxide r12
+alias MODE r13
+alias PressureCible r14
+alias OxygenCible r15
+alias NitrogenCible r16
+alias CarbonDioxideCible r17
+define KELVIN 273
+define SENSOR -1252983604
+define VENT -842048328
+define VENTINNAME IN-VENT #TODO add name hash
+define VENTOUTNAME OUT-VENT #TODO add name hash
+define HEATER 24258244
+define COOLER #TODO add hash
+
+start:
+yield
+j config
+begin:
+add MAXT MAXT KELVIN
+add MINT MINT KELVIN
+#Check temperature
+lb CURT SENSORHASH Temperature 0
+bgtla CURT MAXT cool
+bltla CURT MINT heat
+blela CURT MAXT off
+bgela CURT MINT off
+#Check pressure
+lb CURP SENSOR Pressure
+l OXYGEN SENSOR RatioOxygen
+l POLLUTANT SENSOR RatioPollutant
+l CO2 SENSOR RatioCarbonDioxide
+l VOLATILES SENSOR RatioVolatiles
+l WATER SENSOR RatioWater
+l N2O SENSOR RatioNitrousOxide
+#Check value ratio
+bltal OXYGEN 0.200 inOn
+bgtal OXYGEN 0.300 inOn
+bgtal POLLUTANT 0 inOn
+bgtal CO2 0.200 inOn
+bgtal VOLATILES 0 inOn
+bgtal WATER 0 inOn
+bgtal N2O 0 inOn
+#Check value pressure
+bltal CURP 101 inOn
+bgtal CURP 101 outOn
+bleal CURP 101 outOff
+#Fin
+j start
+
+cool:
+s COOLER On 1
+s HEATER On 0
+j ra
+heat:
+s HEATER On 1
+s COOLER On 0
+j ra
+off:
+s HEATER On 0
+s COOLER On 0
+j ra
+inOn:
+s IN On 1
+j ra
+inOff:
+s IN On 0
+j ra
+outOn:
+s OUT On 1
+j ra
+outOff:
+s OUT On 0
+j ra
+
+config:
+l MODE MODEDIAL setting
+l CONFIG CONFIGDIAL setting
+move PressureCible 101
+beq DIAL 0 configDepressurize
+beq DIAL 1 configRoom
+beq DIAL 2 configGreenhouse
+beq DIAL 3 configFridge
+j configRoom
+configRoom:
+move MAXT 22
+move MINT 19
+move RationOxygen 0.2
+move RationNitrogen 0.7
+move RationCarbonDioxide 0.1
+j begin
+configGreenhouse:
+move MAXT 30
+move MINT 25
+move RationOxygen 0.1
+move RationNitrogen 0
+move RationCarbonDioxide 0.9
+j begin
+configFridge:
+move MAXT -163
+move MINT -163
+move OxygenCible 0
+move NitrogenCible 1
+move CarbonDioxideCible 0
+j begin
+configDepressurize:
+move PressureCible 0
+j begin

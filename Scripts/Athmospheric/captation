@@ -1,0 +1,55 @@
+alias RES d0 # Reservoir
+alias EXTTEMP d1 # CAPTEUR EXTERIEUR
+alias ASP d2 # Aspiration
+alias HEATER d3 # Rechaud filtration
+alias LED d4
+alias LEVER d5
+alias MAXP r0 # Pression limite
+alias CURP r1 # Pression actuel
+alias MINT r3 # Temperature min filtration
+alias CURT r4 # Temperature actuel filtration
+alias ASPTTARGET r5 # Temperature min aspiration
+alias EXTT r6 # Temperature exterieur
+alias ACTIVATION r7
+
+s LED Color 2
+
+#Consigne soupape
+move MAXP 35000
+#Consigne rechaud
+move MINT 20
+add MINT MINT 273.15
+#Consigne aspiration temp
+move ASPTTARGET 10
+add ASPTTARGET ASPTTARGET 273.15
+#Start
+start:
+l CURT RES Temperature
+bgt MINT CURT heat
+ble MINT CURT noheat
+j checkpressure
+#Check pressure
+checkpressure:
+l CURP RES Pressure
+l EXTT EXTTEMP Temperature
+l ACTIVATION LEVER Open
+beq ACTIVATION 1 off
+bge ASPTTARGET EXTT off
+bge CURP MAXP off
+j fill
+
+fill:
+s ASP On 1
+s LED On 1
+j start
+off:
+s ASP On 0
+s LED On 0
+j start
+#Gestion rechaud
+heat:
+s HEATER On 1
+j checkpressure
+noheat:
+s HEATER On 0
+j checkpressure

@@ -1,0 +1,17 @@
+alias RES d0
+alias VLV d1
+alias MAXP r0
+alias CURP r1
+move MAXP 40000
+start:
+yield
+l CURP RES Pressure
+bge CURP MAXP blowoff
+bgt MAXP CURP fill
+j start
+blowoff:
+s VLV On 1
+j start
+fill:
+s VLV On 0
+j start

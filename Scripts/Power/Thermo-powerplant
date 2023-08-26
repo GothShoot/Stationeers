@@ -1,0 +1,27 @@
+alias WEATHER d0
+alias LIGHT d1
+alias GAS d2
+alias STATE d3
+
+alias STORM r1
+alias SUN r2
+alias TEMPERATURE r3
+alias TARGETTEMP r4
+
+add TARGETTEMP 273 5
+
+start:
+yield
+l STORM WEATHER Mode
+l TEMPERATURE GAS Temperature
+bgt STORM 0 retract
+blt TEMPERATURE TARGETTEMP retract
+j deploy
+
+retract:
+s STATE Setting 0
+j start
+
+deploy:
+s STATE Setting 1
+j start
