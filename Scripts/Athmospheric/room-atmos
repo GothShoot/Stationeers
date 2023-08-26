@@ -1,5 +1,6 @@
-alias MODEDIAL d0
-alias CONFIGDIAL d1
+alias DIAL d0
+alias IN d1
+alias OUT d2
 alias MAXT r0
 alias MINT r1
 alias CURT r2
@@ -20,11 +21,8 @@ alias NitrogenCible r16
 alias CarbonDioxideCible r17
 define KELVIN 273
 define SENSOR -1252983604
-define VENT -842048328
-define VENTINNAME IN-VENT #TODO add name hash
-define VENTOUTNAME OUT-VENT #TODO add name hash
 define HEATER 24258244
-define COOLER #TODO add hash
+define COOLER -1567752627
 
 start:
 yield
@@ -33,19 +31,19 @@ begin:
 add MAXT MAXT KELVIN
 add MINT MINT KELVIN
 #Check temperature
-lb CURT SENSORHASH Temperature 0
-bgtla CURT MAXT cool
-bltla CURT MINT heat
-blela CURT MAXT off
-bgela CURT MINT off
+lb CURT SENSOR Temperature Average
+bgtal CURT MAXT cool
+bltal CURT MINT heat
+bleal CURT MAXT off
+bgeal CURT MINT off
 #Check pressure
-lb CURP SENSOR Pressure
-l OXYGEN SENSOR RatioOxygen
-l POLLUTANT SENSOR RatioPollutant
-l CO2 SENSOR RatioCarbonDioxide
-l VOLATILES SENSOR RatioVolatiles
-l WATER SENSOR RatioWater
-l N2O SENSOR RatioNitrousOxide
+lb CURP SENSOR Pressure Average
+lb OXYGEN SENSOR RatioOxygen Average
+lb POLLUTANT SENSOR RatioPollutant Average
+lb CO2 SENSOR RatioCarbonDioxide Average
+lb VOLATILES SENSOR RatioVolatiles Average
+lb WATER SENSOR RatioWater Average
+lb N2O SENSOR RatioNitrousOxide Average
 #Check value ratio
 bltal OXYGEN 0.200 inOn
 bgtal OXYGEN 0.300 inOn
@@ -62,16 +60,16 @@ bleal CURP 101 outOff
 j start
 
 cool:
-s COOLER On 1
-s HEATER On 0
+sb COOLER On 1
+sb HEATER On 0
 j ra
 heat:
-s HEATER On 1
-s COOLER On 0
+sb HEATER On 1
+sb COOLER On 0
 j ra
 off:
-s HEATER On 0
-s COOLER On 0
+sb HEATER On 0
+sb COOLER On 0
 j ra
 inOn:
 s IN On 1
@@ -87,8 +85,7 @@ s OUT On 0
 j ra
 
 config:
-l MODE MODEDIAL setting
-l CONFIG CONFIGDIAL setting
+l MODE DIAL Setting
 move PressureCible 101
 beq DIAL 0 configDepressurize
 beq DIAL 1 configRoom
@@ -98,16 +95,16 @@ j configRoom
 configRoom:
 move MAXT 22
 move MINT 19
-move RationOxygen 0.2
-move RationNitrogen 0.7
-move RationCarbonDioxide 0.1
+move RatioOxygen 0.2
+move RatioNitrogen 0.7
+move RatioCarbonDioxide 0.1
 j begin
 configGreenhouse:
 move MAXT 30
 move MINT 25
-move RationOxygen 0.1
-move RationNitrogen 0
-move RationCarbonDioxide 0.9
+move RatioOxygen 0.1
+move RatioNitrogen 0
+move RatioCarbonDioxide 0.9
 j begin
 configFridge:
 move MAXT -163
